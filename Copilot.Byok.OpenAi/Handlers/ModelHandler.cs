@@ -24,9 +24,9 @@ namespace Copilot.Byok.OpenAi.Handlers
         /// </summary>
         /// <param name="options">模型选项监控器</param>
         /// <returns>OpenAI模型列表</returns>
-        public static OpenAIModelList GetAll(IOptionsMonitor<ModelOptions> options)
+        public static OpenAiModelList GetAll(IOptionsMonitor<ModelOptions> options)
         {
-            return new OpenAIModelList
+            return new OpenAiModelList
             {
                 Data = options.CurrentValue.Models.Keys.Select(i => new OpenAiModel(i)).ToArray()
             };
