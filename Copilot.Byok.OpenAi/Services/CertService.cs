@@ -141,7 +141,7 @@ namespace Copilot.Byok.OpenAi.Services
                 entry.SetAbsoluteExpiration(notAfter);
 
                 var subjectName = new X500DistinguishedName($"CN={domain}");
-                var endCert = CertGenerator.CreateEndCertificate(this.caCert, subjectName, ["localhost"], notBefore, notAfter);
+                var endCert = CertGenerator.CreateEndCertificate(this.caCert, subjectName, null, notBefore, notAfter);
 
                 // 重新初始化证书，以兼容win平台不能使用内存证书
                 return X509CertificateLoader.LoadPkcs12(endCert.Export(X509ContentType.Pfx), null);
