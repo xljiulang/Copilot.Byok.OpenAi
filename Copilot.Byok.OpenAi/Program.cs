@@ -59,11 +59,11 @@ namespace Copilot.Byok.OpenAi
                 });
 
                 var app = builder.Build();
-                app.UseMiddleware<ModelMiddleware>();
+                app.UseMiddleware<ModelConfigMiddleware>();
 
-                app.MapGet("/", ModelHandler.Get);
+                app.MapGet("/", ModelHandler.GetAll);
                 app.MapGet("/v1/models", ModelHandler.GetAll);
-                app.MapGet("/v1/models/{**model}", ModelHandler.GetOne);
+                app.MapGet("/v1/models/{**id}", ModelHandler.GetOne);
                 app.Map("/v1/chat/completions", ChatHandler.HandleAsync);
 
                 app.Run();

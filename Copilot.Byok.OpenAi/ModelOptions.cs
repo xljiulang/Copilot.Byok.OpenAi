@@ -25,12 +25,12 @@ namespace Copilot.Byok.OpenAi
         /// <summary>
         /// 根据模型ID选择模型配置
         /// </summary>
-        /// <param name="model">模型ID</param>
+        /// <param name="id">模型ID</param>
         /// <returns>模型配置对象，按 LastUsedTicks 排序，如果不存在则返回null</returns>
-        public ModelConfig? Select(string? model)
+        public ModelConfig? Select(string? id)
         {
             var item = this._modelConfigs
-                .Where(m => m.Model == model)
+                .Where(m => m.Id == id)
                 .OrderBy(m => m.LastUsedTicks)
                 .FirstOrDefault();
 

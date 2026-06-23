@@ -10,6 +10,11 @@ namespace Copilot.Byok.OpenAi.Models
     sealed class ModelDescriptor
     {
         /// <summary>
+        /// 实际模型 ID
+        /// </summary>
+        public string? Model { get; set; }
+
+        /// <summary>
         /// 获取或设置每分钟最大请求数，0表示不限制
         /// </summary>
         public int RequestsPerMinute { get; set; }
@@ -32,16 +37,17 @@ namespace Copilot.Byok.OpenAi.Models
         /// <summary>
         /// 将模型描述符转换为模型配置集合
         /// </summary>
-        /// <param name="model">模型名称</param>
+        /// <param name="id">模型Id</param>
         /// <returns>模型配置枚举</returns>
-        public IEnumerable<ModelConfig> ToModelConfig(string model)
+        public IEnumerable<ModelConfig> ToModelConfig(string id)
         {
             var index = this.ApiKeys.Length == 1 ? -1 : 0;
             foreach (var apiKey in this.ApiKeys)
             {
                 yield return new ModelConfig
                 {
-                    Model = model,
+                    Id = id,
+                    Model = string.IsNullOrWhiteSpace(this.Model) ? id : this.Model,
                     BaseUrl = this.BaseUrl,
                     ApiKey = apiKey,
                     Index = index++,

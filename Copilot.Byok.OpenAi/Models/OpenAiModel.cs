@@ -18,10 +18,10 @@
         /// <summary>
         /// 初始化OpenAIModel实例
         /// </summary>
-        /// <param name="model">模型ID</param>
-        public OpenAiModel(string model)
+        /// <param name="id">模型ID</param>
+        public OpenAiModel(string id)
         {
-            this.Id = model;
-        } 
+            this.Id = id;
+        }
     }
 }

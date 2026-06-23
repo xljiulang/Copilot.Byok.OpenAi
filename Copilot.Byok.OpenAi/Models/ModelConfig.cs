@@ -8,6 +8,11 @@ namespace Copilot.Byok.OpenAi.Models
     sealed class ModelConfig
     {
         /// <summary>
+        /// 模型Id
+        /// </summary>
+        public required string Id { get; init; }
+
+        /// <summary>
         /// 获取或设置模型名称
         /// </summary>
         public required string Model { get; init; }

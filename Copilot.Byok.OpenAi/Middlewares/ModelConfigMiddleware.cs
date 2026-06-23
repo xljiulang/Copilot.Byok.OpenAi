@@ -12,12 +12,12 @@ namespace Copilot.Byok.OpenAi.Middlewares
     /// 从请求体中解析出模型名称，并将其存储在 IModelFeature 中，供后续处理使用
     /// </summary>
     [Service(ServiceLifetime.Singleton)]
-    sealed class ModelMiddleware : IMiddleware
+    sealed class ModelConfigMiddleware : IMiddleware
     {
         private static readonly RecyclableMemoryStreamManager _memoryStreamManager = new();
         private readonly IOptionsMonitor<ModelOptions> modelOptions;
 
-        public ModelMiddleware(IOptionsMonitor<ModelOptions> modelOptions)
+        public ModelConfigMiddleware(IOptionsMonitor<ModelOptions> modelOptions)
         {
             this.modelOptions = modelOptions;
         }
@@ -39,11 +39,12 @@ namespace Copilot.Byok.OpenAi.Middlewares
 
                 try
                 {
-                    var modelConfig = this.GetModelConfig(newBody);
-                    context.Features.Set<IModelConfigFeature>(new ModelFeature(modelConfig));
+                    var modelConfigFeature = this.CreateModelConfigFeature(newBody);
+                    context.Features.Set<IModelConfigFeature>(modelConfigFeature);
 
                     newBody.Position = 0L;
                     context.Request.Body = newBody;
+                    context.Request.ContentLength = newBody.Length;
 
                     await next(context);
                 }
@@ -63,23 +64,35 @@ namespace Copilot.Byok.OpenAi.Middlewares
         /// </summary>
         /// <param name="stream">请求流</param>
         /// <returns>模型配置对象，如果解析失败则返回null</returns>
-        private ModelConfig? GetModelConfig(RecyclableMemoryStream stream)
+        private ModelConfigFeature? CreateModelConfigFeature(RecyclableMemoryStream stream)
         {
             stream.Position = 0L;
             var reader = new Utf8JsonReader(stream.GetReadOnlySequence());
             if (JsonDocument.TryParseValue(ref reader, out var document))
             {
-                if (document.RootElement.TryGetProperty("model", out var modelProperty))
+                var openAiRequest = document.Deserialize(JsonContext.Default.OpenAiRequest);
+                if (openAiRequest != null)
                 {
-                    var model = modelProperty.GetString();
-                    return this.modelOptions.CurrentValue.Select(model);
+                    var id = openAiRequest.Model;
+                    var modelConfig = this.modelOptions.CurrentValue.Select(id);
+                    if (modelConfig != null && modelConfig.Id != modelConfig.Model)
+                    {
+                        // 更新请求内容中的 model 值
+                        openAiRequest.Model = modelConfig.Model;
+                        stream.Position = 0L;
+                        stream.SetLength(0L);
+                        JsonSerializer.Serialize(stream, openAiRequest, JsonContext.Default.OpenAiRequest);
+                    }
+                    return new ModelConfigFeature(id, modelConfig);
                 }
             }
             return null;
         }
 
-        private sealed class ModelFeature(ModelConfig? modelConfig) : IModelConfigFeature
+        private sealed class ModelConfigFeature(string id, ModelConfig? modelConfig) : IModelConfigFeature
         {
+            public string Id { get; } = id;
+
             public ModelConfig? ModelConfig { get; } = modelConfig;
         }
     }

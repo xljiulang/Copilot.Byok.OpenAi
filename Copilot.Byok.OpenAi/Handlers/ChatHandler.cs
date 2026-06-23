@@ -24,13 +24,21 @@ namespace Copilot.Byok.OpenAi.Handlers
             ChatHttpClient httpClient,
             ILogger<ChatHandler> logger)
         {
-            var modelConfig = context.Features.Get<IModelConfigFeature>()?.ModelConfig;
-            if (modelConfig == null)
+            var feature = context.Features.Get<IModelConfigFeature>();
+            if (feature == null)
             {
-                context.Response.StatusCode = StatusCodes.Status502BadGateway;
+                context.Response.StatusCode = StatusCodes.Status400BadRequest;
                 return;
             }
 
+            var modelConfig = feature.ModelConfig;
+            if (modelConfig == null)
+            {
+                context.Response.StatusCode = StatusCodes.Status502BadGateway;
+                logger.LogError($"找不到匹配的模型配置: {feature.Id}");
+                return;
+            }
+            
             logger.LogInformation($"准备转发请求到模型：{modelConfig}");
             var waitTime = await modelConfig.ConcurrentLimiter.WaitAsync(context.RequestAborted);
 
