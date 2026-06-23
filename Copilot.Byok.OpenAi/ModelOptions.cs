@@ -1,0 +1,41 @@
+﻿using Copilot.Byok.OpenAi.Models;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+
+namespace Copilot.Byok.OpenAi
+{
+    sealed class ModelOptions
+    {
+        private ModelConfig[] _modelConfigs = [];
+
+        /// <summary>
+        /// 获取或设置模型字典，键为模型名称，值为模型描述符
+        /// </summary>
+        public Dictionary<string, ModelDescriptor> Models { get; set; } = [];
+
+        /// <summary>
+        /// 初始化模型配置
+        /// </summary>
+        public void Initialize()
+        {
+            this._modelConfigs = this.Models.SelectMany(kv => kv.Value.ToModelConfig(kv.Key)).ToArray();
+        }
+
+        /// <summary>
+        /// 根据模型ID选择模型配置
+        /// </summary>
+        /// <param name="model">模型ID</param>
+        /// <returns>模型配置对象，按 LastUsedTicks 排序，如果不存在则返回null</returns>
+        public ModelConfig? Select(string? model)
+        {
+            var item = this._modelConfigs
+                .Where(m => m.Model == model)
+                .OrderBy(m => m.LastUsedTicks)
+                .FirstOrDefault();
+
+            item?.LastUsedTicks = Environment.TickCount64;
+            return item;
+        }
+    }
+}
