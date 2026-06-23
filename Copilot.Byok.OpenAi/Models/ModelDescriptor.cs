@@ -36,7 +36,7 @@ namespace Copilot.Byok.OpenAi.Models
         /// <returns>模型配置枚举</returns>
         public IEnumerable<ModelConfig> ToModelConfig(string model)
         {
-            var index = 0;
+            var index = this.ApiKeys.Length == 1 ? -1 : 0;
             foreach (var apiKey in this.ApiKeys)
             {
                 yield return new ModelConfig

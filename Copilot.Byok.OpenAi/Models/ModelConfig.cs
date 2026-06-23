@@ -48,7 +48,7 @@ namespace Copilot.Byok.OpenAi.Models
         /// <returns>模型名称</returns>
         public override string ToString()
         {
-            return $"{this.Model}[{this.Index}]";
+            return this.Index < 0 ? this.Model : $"{this.Model}[{this.Index}]";
         }
     }
 }
