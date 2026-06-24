@@ -18,10 +18,10 @@ namespace Copilot.Byok.OpenAi.Middlewares
         private readonly RecyclableMemoryStreamManager _memoryStreamManager;
 
         public ModelConfigMiddleware(
-            IOptionsMonitor<OpenAiOptions> _openAiOptions,
+            IOptionsMonitor<OpenAiOptions> openAiOptions,
             RecyclableMemoryStreamManager memoryStreamManager)
         {
-            this._openAiOptions = _openAiOptions;
+            this._openAiOptions = openAiOptions;
             this._memoryStreamManager = memoryStreamManager;
         }
 

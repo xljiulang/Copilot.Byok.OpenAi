@@ -11,8 +11,8 @@ namespace Copilot.Byok.OpenAi.Uitls
     /// </summary>
     static class CertGenerator
     {
-        private static readonly Oid tlsServerOid = new("1.3.6.1.5.5.7.3.1");
-        private static readonly Oid tlsClientOid = new("1.3.6.1.5.5.7.3.2");
+        private static readonly Oid _tlsServerOid = new("1.3.6.1.5.5.7.3.1");
+        private static readonly Oid _tlsClientOid = new("1.3.6.1.5.5.7.3.2");
 
         /// <summary>
         /// 生成ca证书
@@ -39,7 +39,7 @@ namespace Copilot.Byok.OpenAi.Uitls
             var keyUsage = new X509KeyUsageExtension(X509KeyUsageFlags.DigitalSignature | X509KeyUsageFlags.CrlSign | X509KeyUsageFlags.KeyCertSign, true);
             request.CertificateExtensions.Add(keyUsage);
 
-            var oids = new OidCollection { tlsServerOid, tlsClientOid };
+            var oids = new OidCollection { _tlsServerOid, _tlsClientOid };
             var enhancedKeyUsage = new X509EnhancedKeyUsageExtension(oids, true);
             request.CertificateExtensions.Add(enhancedKeyUsage);
 
@@ -80,7 +80,7 @@ namespace Copilot.Byok.OpenAi.Uitls
             var keyUsage = new X509KeyUsageExtension(X509KeyUsageFlags.DigitalSignature | X509KeyUsageFlags.KeyEncipherment, true);
             request.CertificateExtensions.Add(keyUsage);
 
-            var oids = new OidCollection { tlsServerOid, tlsClientOid };
+            var oids = new OidCollection { _tlsServerOid, _tlsClientOid };
             var enhancedKeyUsage = new X509EnhancedKeyUsageExtension(oids, true);
             request.CertificateExtensions.Add(enhancedKeyUsage);
 

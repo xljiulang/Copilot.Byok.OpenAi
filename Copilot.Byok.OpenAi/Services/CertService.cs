@@ -15,9 +15,9 @@ namespace Copilot.Byok.OpenAi.Services
     [Service(ServiceLifetime.Singleton)]
     sealed class CertService
     {
-        private readonly IMemoryCache serverCertCache;
-        private readonly ILogger<CertService> logger;
-        private X509Certificate2? caCert;
+        private readonly IMemoryCache _serverCertCache;
+        private readonly ILogger<CertService> _logger;
+        private X509Certificate2? _caCert;
 
         /// <summary>
         /// 获取CA证书文件路径
@@ -38,8 +38,8 @@ namespace Copilot.Byok.OpenAi.Services
             IMemoryCache serverCertCache,
             ILogger<CertService> logger)
         {
-            this.serverCertCache = serverCertCache;
-            this.logger = logger;
+            this._serverCertCache = serverCertCache;
+            this._logger = logger;
 
             var appDataPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), nameof(Copilot.Byok.OpenAi));
             Directory.CreateDirectory(appDataPath);
@@ -66,12 +66,12 @@ namespace Copilot.Byok.OpenAi.Services
             var notAfter = DateTimeOffset.Now.AddYears(10);
 
             var subjectName = new X500DistinguishedName($"CN={nameof(Copilot.Byok.OpenAi)}");
-            this.caCert = CertGenerator.CreateCACertificate(subjectName, notBefore, notAfter);
+            this._caCert = CertGenerator.CreateCACertificate(subjectName, notBefore, notAfter);
 
-            var privateKeyPem = this.caCert.GetRSAPrivateKey()?.ExportRSAPrivateKeyPem();
+            var privateKeyPem = this._caCert.GetRSAPrivateKey()?.ExportRSAPrivateKeyPem();
             File.WriteAllText(this.CaKeyFilePath, new string(privateKeyPem), Encoding.UTF8);
 
-            var certPem = this.caCert.ExportCertificatePem();
+            var certPem = this._caCert.ExportCertificatePem();
             File.WriteAllText(this.CaCerFilePath, new string(certPem), Encoding.UTF8);
 
             return true;
@@ -82,7 +82,7 @@ namespace Copilot.Byok.OpenAi.Services
         /// </summary>
         public void InstallCaCertIfWindows()
         {
-            this.logger.LogInformation($"CA证书路径：{this.CaCerFilePath}");
+            this._logger.LogInformation($"CA证书路径：{this.CaCerFilePath}");
 
             if (OperatingSystem.IsWindows() == false)
             {
@@ -113,7 +113,7 @@ namespace Copilot.Byok.OpenAi.Services
             }
             catch (Exception)
             {
-                logger.LogWarning($"请手动安装CA证书{this.CaCerFilePath}到\"将所有的证书都放入下列存储\"受信任的根证书颁发机构\"");
+                _logger.LogWarning($"请手动安装CA证书{this.CaCerFilePath}到\"将所有的证书都放入下列存储\"受信任的根证书颁发机构\"");
             }
         }
 
@@ -124,13 +124,13 @@ namespace Copilot.Byok.OpenAi.Services
         /// <returns>服务器证书</returns>
         public X509Certificate2 GetOrCreateServerCert(string? domain)
         {
-            if (this.caCert == null)
+            if (this._caCert == null)
             {
-                this.caCert = X509Certificate2.CreateFromPemFile(this.CaCerFilePath, this.CaKeyFilePath);
+                this._caCert = X509Certificate2.CreateFromPemFile(this.CaCerFilePath, this.CaKeyFilePath);
             }
 
             var key = $"{nameof(CertService)}:{domain}";
-            var endCert = this.serverCertCache.GetOrCreate(key, GetOrCreateCert);
+            var endCert = this._serverCertCache.GetOrCreate(key, GetOrCreateCert);
             return endCert!;
 
             // 生成域名的1年证书
@@ -141,7 +141,7 @@ namespace Copilot.Byok.OpenAi.Services
                 entry.SetAbsoluteExpiration(notAfter);
 
                 var subjectName = new X500DistinguishedName($"CN={domain}");
-                var endCert = CertGenerator.CreateEndCertificate(this.caCert, subjectName, null, notBefore, notAfter);
+                var endCert = CertGenerator.CreateEndCertificate(this._caCert, subjectName, null, notBefore, notAfter);
 
                 // 重新初始化证书，以兼容win平台不能使用内存证书
                 return X509CertificateLoader.LoadPkcs12(endCert.Export(X509ContentType.Pfx), null);
