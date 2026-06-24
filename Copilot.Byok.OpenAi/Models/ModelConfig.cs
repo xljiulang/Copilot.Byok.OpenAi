@@ -43,11 +43,6 @@ namespace Copilot.Byok.OpenAi.Models
         public required ConcurrentLimiter ConcurrentLimiter { get; init; }
 
         /// <summary>
-        /// 最后一次使用的时间戳
-        /// </summary>
-        public long LastUsedTicks { get; set; }
-
-        /// <summary>
         /// 返回模型的字符串表示
         /// </summary>
         /// <returns>模型名称</returns>
