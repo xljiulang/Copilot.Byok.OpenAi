@@ -1,4 +1,4 @@
-﻿using Copilot.Byok.OpenAi.Uitls;
+﻿using Copilot.Byok.OpenAi.Utils;
 using System;
 using System.Collections.Generic;
 

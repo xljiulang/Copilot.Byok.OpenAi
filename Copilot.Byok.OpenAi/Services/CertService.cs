@@ -1,4 +1,4 @@
-﻿using Copilot.Byok.OpenAi.Uitls;
+﻿using Copilot.Byok.OpenAi.Utils;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;

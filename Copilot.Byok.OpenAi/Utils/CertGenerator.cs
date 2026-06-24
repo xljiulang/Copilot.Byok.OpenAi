@@ -4,7 +4,7 @@ using System.Net;
 using System.Security.Cryptography;
 using System.Security.Cryptography.X509Certificates;
 
-namespace Copilot.Byok.OpenAi.Uitls
+namespace Copilot.Byok.OpenAi.Utils
 {
     /// <summary>
     /// 证书生成器

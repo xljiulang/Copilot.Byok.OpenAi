@@ -75,7 +75,7 @@ namespace Copilot.Byok.OpenAi
                 var v1 = app.MapGroup("/v1").RequireAuthorization(p => p.RequireAuthenticatedUser());
                 v1.MapGet("/models", ModelHandler.GetAll);
                 v1.MapGet("/models/{**id}", ModelHandler.GetOne);
-                v1.Map("/chat/completions", ChatHandler.HandleAsync);
+                v1.MapPost("/chat/completions", ChatHandler.HandleAsync);
                 
                 app.Run();
             }

@@ -2,7 +2,7 @@
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace Copilot.Byok.OpenAi.Uitls
+namespace Copilot.Byok.OpenAi.Utils
 {
     abstract class ConcurrentLimiter : IDisposable
     {
@@ -62,8 +62,7 @@ namespace Copilot.Byok.OpenAi.Uitls
 
             public DefaultConcurrentLimiter(int maxConcurrentRequests)
             {
-                var initialCount = Math.Min(maxConcurrentRequests, Environment.ProcessorCount);
-                _semaphore = new SemaphoreSlim(initialCount, maxConcurrentRequests);
+                _semaphore = new SemaphoreSlim(maxConcurrentRequests, maxConcurrentRequests);
             }
 
             public override async Task<TimeSpan> WaitAsync(CancellationToken cancellationToken = default)

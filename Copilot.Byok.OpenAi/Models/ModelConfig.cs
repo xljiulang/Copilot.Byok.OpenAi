@@ -1,4 +1,4 @@
-﻿using Copilot.Byok.OpenAi.Uitls;
+﻿using Copilot.Byok.OpenAi.Utils;
 
 namespace Copilot.Byok.OpenAi.Models
 {

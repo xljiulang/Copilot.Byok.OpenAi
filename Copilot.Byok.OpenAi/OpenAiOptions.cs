@@ -26,7 +26,10 @@ namespace Copilot.Byok.OpenAi
         /// </summary>
         public void Initialize()
         {
-            this._modelConfigs = this.Models.SelectMany(kv => kv.Value.ToModelConfig(kv.Key)).ToArray();
+            lock (this._lock)
+            {
+                this._modelConfigs = this.Models.SelectMany(kv => kv.Value.ToModelConfig(kv.Key)).ToArray();
+            }
         }
 
         /// <summary>

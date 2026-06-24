@@ -4,7 +4,7 @@ using System.Diagnostics;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace Copilot.Byok.OpenAi.Uitls
+namespace Copilot.Byok.OpenAi.Utils
 {
     /// <summary>
     /// 提供基于滑动时间窗口的请求速率限制（Rate Per Window, RPW）的抽象基类。
