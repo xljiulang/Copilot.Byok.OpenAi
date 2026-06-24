@@ -79,7 +79,7 @@ namespace Copilot.Byok.OpenAi.Middlewares
                     if (openAiRequest != null)
                     {
                         var id = openAiRequest.Model;
-                        var modelConfig = this._openAiOptions.CurrentValue.Select(id);
+                        var modelConfig = this._openAiOptions.CurrentValue.SelectModelConfig(id);
                         if (modelConfig != null && modelConfig.Id != modelConfig.Model)
                         {
                             // 更新请求内容中的 model 值

@@ -2,11 +2,13 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 
 namespace Copilot.Byok.OpenAi
 {
     sealed class OpenAiOptions
     {
+        private readonly Lock _lock = new();
         private ModelConfig[] _modelConfigs = [];
 
         /// <summary>
@@ -32,15 +34,18 @@ namespace Copilot.Byok.OpenAi
         /// </summary>
         /// <param name="id">模型ID</param>
         /// <returns>模型配置对象，按 LastUsedTicks 排序，如果不存在则返回null</returns>
-        public ModelConfig? Select(string? id)
+        public ModelConfig? SelectModelConfig(string? id)
         {
-            var item = this._modelConfigs
-                .Where(m => m.Id == id)
-                .OrderBy(m => m.LastUsedTicks)
-                .FirstOrDefault();
+            lock (this._lock)
+            {
+                var item = this._modelConfigs
+                    .Where(m => m.Id == id)
+                    .OrderBy(m => m.LastUsedTicks)
+                    .FirstOrDefault();
 
-            item?.LastUsedTicks = Environment.TickCount64;
-            return item;
+                item?.LastUsedTicks = Environment.TickCount64;
+                return item;
+            }
         }
     }
 }
