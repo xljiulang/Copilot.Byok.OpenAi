@@ -14,7 +14,7 @@ namespace Copilot.Byok.OpenAi.Handlers
         /// </summary>
         /// <param name="options">模型选项监控器</param>
         /// <returns>OpenAI模型列表</returns>
-        public static OpenAiModelList GetAll(IOptionsMonitor<ModelOptions> options)
+        public static OpenAiModelList GetAll(IOptionsMonitor<OpenAiOptions> options)
         {
             return new OpenAiModelList
             {
@@ -28,7 +28,7 @@ namespace Copilot.Byok.OpenAi.Handlers
         /// <param name="options">模型选项监控器</param>
         /// <param name="id">模型ID</param>
         /// <returns>OpenAI模型对象，如果不存在则返回null</returns>
-        public static OpenAiModel? GetOne(IOptionsMonitor<ModelOptions> options, string id)
+        public static OpenAiModel? GetOne(IOptionsMonitor<OpenAiOptions> options, string id)
         {
             id = id.TrimStart('/');
             return options.CurrentValue.Models.ContainsKey(id) ? new OpenAiModel(id) : null;

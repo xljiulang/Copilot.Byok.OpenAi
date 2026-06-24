@@ -5,7 +5,7 @@ using System.Linq;
 
 namespace Copilot.Byok.OpenAi
 {
-    sealed class ModelOptions
+    sealed class OpenAiOptions
     {
         private ModelConfig[] _modelConfigs = [];
 
@@ -13,6 +13,11 @@ namespace Copilot.Byok.OpenAi
         /// 获取或设置模型字典，键为模型名称，值为模型描述符
         /// </summary>
         public Dictionary<string, ModelDescriptor> Models { get; set; } = [];
+
+        /// <summary>
+        /// apikey 集合，允许的apikey列表，如果为空则不限制
+        /// </summary>
+        public HashSet<string> ApiKeys { get; set; } = [];
 
         /// <summary>
         /// 初始化模型配置

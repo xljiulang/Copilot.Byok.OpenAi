@@ -1,12 +1,14 @@
 using Copilot.Byok.OpenAi.Handlers;
 using Copilot.Byok.OpenAi.Middlewares;
 using Copilot.Byok.OpenAi.Services;
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using Microsoft.IO;
 using Serilog;
 using ServiceSelf;
 
@@ -21,19 +23,25 @@ namespace Copilot.Byok.OpenAi
                 var builder = WebApplication.CreateSlimBuilder(args);
 
                 builder.Services
-                    .AddOptions<ModelOptions>()
-                    .Bind(builder.Configuration);
+                    .AddOptions<OpenAiOptions>()
+                    .Bind(builder.Configuration.GetSection(nameof(OpenAi)));
 
                 builder.Services
                     .AddMemoryCache()
                     .AddHttpForwarder()
                     .AddHttpClient()
                     .AddCopilotByokOpenAi()
-                    .PostConfigure<ModelOptions>(options => options.Initialize())
+                    .AddAuthorization()
+                    .AddSingleton<RecyclableMemoryStreamManager>()
+                    .PostConfigure<OpenAiOptions>(options => options.Initialize())
                     .ConfigureHttpJsonOptions(jsonOptions =>
                     {
                         jsonOptions.SerializerOptions.TypeInfoResolverChain.Insert(0, JsonContext.Default);
                     });
+
+                builder.Services
+                    .AddAuthentication("ApiKey")
+                    .AddScheme<AuthenticationSchemeOptions, ApiKeyAuthHandler>("ApiKey", null);
 
                 builder.Logging.ClearProviders();
                 builder.Host.UseServiceSelf();
@@ -59,13 +67,16 @@ namespace Copilot.Byok.OpenAi
                 });
 
                 var app = builder.Build();
+                app.UseAuthentication();
+                app.UseAuthorization();
                 app.UseMiddleware<ModelConfigMiddleware>();
 
-                app.MapGet("/", ModelHandler.GetAll);
-                app.MapGet("/v1/models", ModelHandler.GetAll);
-                app.MapGet("/v1/models/{**id}", ModelHandler.GetOne);
-                app.Map("/v1/chat/completions", ChatHandler.HandleAsync);
-
+                app.MapGet("/", () => "Copilot.Byok.OpenAi is running.");
+                var v1 = app.MapGroup("/v1").RequireAuthorization(p => p.RequireAuthenticatedUser());
+                v1.MapGet("/models", ModelHandler.GetAll);
+                v1.MapGet("/models/{**id}", ModelHandler.GetOne);
+                v1.Map("/chat/completions", ChatHandler.HandleAsync);
+                
                 app.Run();
             }
         }

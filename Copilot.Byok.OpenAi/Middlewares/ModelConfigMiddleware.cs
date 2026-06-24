@@ -14,12 +14,15 @@ namespace Copilot.Byok.OpenAi.Middlewares
     [Service(ServiceLifetime.Singleton)]
     sealed class ModelConfigMiddleware : IMiddleware
     {
-        private static readonly RecyclableMemoryStreamManager _memoryStreamManager = new();
-        private readonly IOptionsMonitor<ModelOptions> modelOptions;
+        private readonly IOptionsMonitor<OpenAiOptions> _openAiOptions;
+        private readonly RecyclableMemoryStreamManager _memoryStreamManager;
 
-        public ModelConfigMiddleware(IOptionsMonitor<ModelOptions> modelOptions)
+        public ModelConfigMiddleware(
+            IOptionsMonitor<OpenAiOptions> _openAiOptions,
+            RecyclableMemoryStreamManager memoryStreamManager)
         {
-            this.modelOptions = modelOptions;
+            this._openAiOptions = _openAiOptions;
+            this._memoryStreamManager = memoryStreamManager;
         }
 
         /// <summary>
@@ -76,7 +79,7 @@ namespace Copilot.Byok.OpenAi.Middlewares
                     if (openAiRequest != null)
                     {
                         var id = openAiRequest.Model;
-                        var modelConfig = this.modelOptions.CurrentValue.Select(id);
+                        var modelConfig = this._openAiOptions.CurrentValue.Select(id);
                         if (modelConfig != null && modelConfig.Id != modelConfig.Model)
                         {
                             // 更新请求内容中的 model 值
