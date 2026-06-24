@@ -70,20 +70,23 @@ namespace Copilot.Byok.OpenAi.Middlewares
             var reader = new Utf8JsonReader(stream.GetReadOnlySequence());
             if (JsonDocument.TryParseValue(ref reader, out var document))
             {
-                var openAiRequest = document.Deserialize(JsonContext.Default.OpenAiRequest);
-                if (openAiRequest != null)
+                using (document)
                 {
-                    var id = openAiRequest.Model;
-                    var modelConfig = this.modelOptions.CurrentValue.Select(id);
-                    if (modelConfig != null && modelConfig.Id != modelConfig.Model)
+                    var openAiRequest = document.Deserialize(JsonContext.Default.OpenAiRequest);
+                    if (openAiRequest != null)
                     {
-                        // 更新请求内容中的 model 值
-                        openAiRequest.Model = modelConfig.Model;
-                        stream.Position = 0L;
-                        stream.SetLength(0L);
-                        JsonSerializer.Serialize(stream, openAiRequest, JsonContext.Default.OpenAiRequest);
+                        var id = openAiRequest.Model;
+                        var modelConfig = this.modelOptions.CurrentValue.Select(id);
+                        if (modelConfig != null && modelConfig.Id != modelConfig.Model)
+                        {
+                            // 更新请求内容中的 model 值
+                            openAiRequest.Model = modelConfig.Model;
+                            stream.Position = 0L;
+                            stream.SetLength(0L);
+                            JsonSerializer.Serialize(stream, openAiRequest, JsonContext.Default.OpenAiRequest);
+                        }
+                        return new ModelConfigFeature(id, modelConfig);
                     }
-                    return new ModelConfigFeature(id, modelConfig);
                 }
             }
             return null;
