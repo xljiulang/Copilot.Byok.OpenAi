@@ -18,6 +18,7 @@
 	<ItemGroup>
 		<PackageReference Include="DependencyInjection.Annotation" Version="1.1.3" />
 		<PackageReference Include="Microsoft.IO.RecyclableMemoryStream" Version="3.0.1" />
+		<PackageReference Include="PublishAotClang" Version="1.0.3" />
 		<PackageReference Include="ServiceSelf" Version="1.0.8" />
 		<PackageReference Include="Yarp.ReverseProxy" Version="2.3.0" />
 		<PackageReference Include="Serilog.Extensions.Hosting" Version="10.0.0" />
