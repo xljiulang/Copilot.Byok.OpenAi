@@ -7,6 +7,7 @@
 		<PublishAot>true</PublishAot>
 		<IsAotCompatible>true</IsAotCompatible>
 		<InvariantGlobalization>true</InvariantGlobalization>
+		<GLibcVersion Condition="'$(RuntimeIdentifier)' != 'linux-arm'">2.17</GLibcVersion>
 		<Description>让 Visual Studio Copilot 使用第三方兼容 OpenAI API 的模型</Description>
 	</PropertyGroup>
 
@@ -19,10 +20,10 @@
 	<ItemGroup>
 		<PackageReference Include="DependencyInjection.Annotation" Version="1.1.3" />
 		<PackageReference Include="Microsoft.IO.RecyclableMemoryStream" Version="3.0.1" />
-		<PackageReference Include="PublishAotClang" Version="1.0.3" />
+		<PackageReference Include="PublishAotClang" Version="1.*" />
 		<PackageReference Include="ServiceSelf" Version="1.0.8" />
 		<PackageReference Include="Yarp.ReverseProxy" Version="2.3.0" />
-		<PackageReference Include="Serilog.Extensions.Hosting" Version="10.0.0" />
+		<PackageReference Include="Serilog.Extensions.Hosting" Version="10.*" />
 		<PackageReference Include="Serilog.Settings.Configuration" Version="10.0.1" />
 		<PackageReference Include="Serilog.Sinks.Console" Version="6.1.1" />
 	</ItemGroup>
