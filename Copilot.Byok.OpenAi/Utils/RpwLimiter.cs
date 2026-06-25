@@ -146,12 +146,19 @@ namespace Copilot.Byok.OpenAi.Utils
                             {
                                 // 避免 Stopwatch ticks 与 .NET ticks (100ns) 单位不一致的移植性问题
                                 waitTime = TimeSpan.FromSeconds(waitTicks / (double)Stopwatch.Frequency);
-                                await Task.Delay(waitTime, cancellationToken);
                             }
                         }
                     }
 
+                    // 先入队当前时间戳，再执行等待；
+                    // 如果 Task.Delay 被取消，当前请求已被计入窗口（宁可稍紧不可放松）
                     _requestTimestamps.Enqueue(_stopwatch.ElapsedTicks);
+
+                    if (waitTime > TimeSpan.Zero)
+                    {
+                        await Task.Delay(waitTime, cancellationToken);
+                    }
+
                     return waitTime;
                 }
                 finally

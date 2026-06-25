@@ -40,18 +40,25 @@ namespace Copilot.Byok.OpenAi.Handlers
             }
             
             logger.LogInformation($"准备转发请求到模型：{modelConfig}");
-            var waitTime = await modelConfig.RpmLimiter.WaitAsync(context.RequestAborted);
-            if (waitTime > TimeSpan.Zero)
+            // RPM 限流
+            var rpmWaitTime = await modelConfig.RpmLimiter.WaitAsync(context.RequestAborted);
+            if (rpmWaitTime > TimeSpan.Zero)
             {
-                logger.LogWarning($"模型 {modelConfig} 超出速率限制，已等待 {waitTime}，现在转发请求。");
+                logger.LogWarning($"模型 {modelConfig} 超出速率限制，已等待 {rpmWaitTime}，现在转发请求。");
             }
 
-            waitTime = await modelConfig.ConcurrentLimiter.WaitAsync(context.RequestAborted);
+            // 在获取并发槽位前检查请求是否已取消，避免浪费并发槽位
+            if (context.RequestAborted.IsCancellationRequested)
+            {
+                return;
+            }
+
+            var concurrentWaitTime = await modelConfig.ConcurrentLimiter.WaitAsync(context.RequestAborted);
             try
             {
-                if (waitTime > TimeSpan.FromMilliseconds(100))
+                if (concurrentWaitTime > TimeSpan.FromMilliseconds(100))
                 {
-                    logger.LogWarning($"模型 {modelConfig} 超出并发限制，已等待 {waitTime}，现在转发请求。");
+                    logger.LogWarning($"模型 {modelConfig} 超出并发限制，已等待 {concurrentWaitTime}，现在转发请求。");
                 }
 
                 context.Request.Path = "/chat/completions";
