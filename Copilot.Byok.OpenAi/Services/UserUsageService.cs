@@ -33,7 +33,13 @@ sealed class UserUsageService : BackgroundService
     public UserUsage[] GetRequestStats()
     {
         var yesterday = DateTime.Now.AddDays(-1d).Date;
-        return this._userUsages.Where(i => i.Key.Date >= yesterday).Select(i => i.Value).ToArray();
+        return this._userUsages
+            .Where(i => i.Key.Date >= yesterday)
+            .Select(i => i.Value)
+            .OrderBy(i => i.LastRequestTime.Date)
+            .ThenBy(i => i.RequestCount)
+            .ThenBy(i => i.UserId)
+            .ToArray();
     }
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
