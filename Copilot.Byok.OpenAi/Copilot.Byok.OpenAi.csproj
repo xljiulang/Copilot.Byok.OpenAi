@@ -6,6 +6,7 @@
 		<ApplicationManifest>app.manifest</ApplicationManifest>
 		<PublishAot>true</PublishAot>
 		<IsAotCompatible>true</IsAotCompatible>
+		<InvariantGlobalization>true</InvariantGlobalization>
 		<Description>让 Visual Studio Copilot 使用第三方兼容 OpenAI API 的模型</Description>
 	</PropertyGroup>
 
