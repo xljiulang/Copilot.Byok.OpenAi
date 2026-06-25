@@ -70,13 +70,16 @@ namespace Copilot.Byok.OpenAi
                 app.UseAuthentication();
                 app.UseAuthorization();
                 app.UseMiddleware<ModelConfigMiddleware>();
+                app.UseMiddleware<UserUsageMiddleware>();
 
-                app.MapGet("/", () => "Copilot.Byok.OpenAi is running.");
+                var api = app.MapGroup("/api");
+                api.MapGet("/usages", UserUsageHandler.Get);
+
                 var v1 = app.MapGroup("/v1").RequireAuthorization(p => p.RequireAuthenticatedUser());
                 v1.MapGet("/models", ModelHandler.GetAll);
                 v1.MapGet("/models/{**id}", ModelHandler.GetOne);
                 v1.MapPost("/chat/completions", ChatHandler.HandleAsync);
-                
+
                 app.Run();
             }
         }

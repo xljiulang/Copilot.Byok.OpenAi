@@ -6,6 +6,7 @@ namespace Copilot.Byok.OpenAi
     [JsonSerializable(typeof(OpenAiModel))]
     [JsonSerializable(typeof(OpenAiModelList))]
     [JsonSerializable(typeof(OpenAiRequest))]
+    [JsonSerializable(typeof(UserUsage[]))]
     [JsonSourceGenerationOptions(PropertyNamingPolicy = JsonKnownNamingPolicy.CamelCase)]
     sealed partial class JsonContext : JsonSerializerContext
     {
