@@ -30,18 +30,25 @@ sealed class UserUsageService : BackgroundService
         this._userUsages.GetOrAdd(statKey, _ => new UserUsage(userId, model)).Record(remoteIp);
     }
 
+    /// <summary>
+    /// 获取从昨天到今天的所有用量统计数据
+    /// </summary>
+    /// <returns>用量统计数组，按日期、请求次数、用户ID排序</returns>
     public UserUsage[] GetRequestStats()
     {
         var yesterday = DateTime.Now.AddDays(-1d).Date;
         return this._userUsages
             .Where(i => i.Key.Date >= yesterday)
             .Select(i => i.Value)
-            .OrderBy(i => i.LastRequestTime.Date)
-            .ThenBy(i => i.RequestCount)
+            .OrderByDescending(i => i.LastRequestTime.Date)
+            .ThenByDescending(i => i.RequestCount)
             .ThenBy(i => i.UserId)
             .ToArray();
     }
 
+    /// <summary>
+    /// 后台任务，每天清理超过一天的过期统计记录，防止内存泄漏
+    /// </summary>
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
         while (stoppingToken.IsCancellationRequested == false)
@@ -57,5 +64,8 @@ sealed class UserUsageService : BackgroundService
         }
     }
 
+    /// <summary>
+    /// 统计记录的唯一键
+    /// </summary>
     private sealed record StatKey(string UserId, string Model, DateTime Date);
 }
